@@ -28,33 +28,8 @@ const style = `
     font-family: var(--sans);
     font-weight: 300;
     -webkit-font-smoothing: antialiased;
-    cursor: none;
   }
 
-  /* Custom Cursor */
-  .cursor {
-    position: fixed;
-    width: 8px; height: 8px;
-    background: var(--gold);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9999;
-    transform: translate(-50%, -50%);
-    transition: transform 0.1s ease, width 0.3s ease, height 0.3s ease, background 0.3s ease;
-    mix-blend-mode: difference;
-  }
-  .cursor-ring {
-    position: fixed;
-    width: 36px; height: 36px;
-    border: 1px solid rgba(201,169,110,0.5);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9998;
-    transform: translate(-50%, -50%);
-    transition: all 0.2s ease;
-  }
-  .cursor.hovering { width: 16px; height: 16px; background: var(--white); }
-  .cursor-ring.hovering { width: 56px; height: 56px; border-color: var(--gold); }
 
   /* Noise overlay */
   body::before {
@@ -68,13 +43,14 @@ const style = `
   }
 
   /* Scrollbar */
-  ::-webkit-scrollbar { width: 2px; }
-  ::-webkit-scrollbar-track { background: var(--black); }
-  ::-webkit-scrollbar-thumb { background: var(--gold); }
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 5px; }
+  ::-webkit-scrollbar-thumb:hover { background: #b08d55; }
 
   /* NAV */
   nav {
-    position: fixed;
+    position: absolute;
     top: 0; left: 0; right: 0;
     z-index: 100;
     display: flex;
@@ -97,6 +73,9 @@ const style = `
     list-style: none;
   }
   .nav-links a {
+    display: inline-block;
+    padding: 12px;
+    margin: -12px;
     font-family: var(--sans);
     font-size: 0.7rem;
     font-weight: 500;
@@ -105,7 +84,6 @@ const style = `
     color: var(--dim);
     text-decoration: none;
     transition: color 0.3s ease;
-    cursor: none;
   }
   .nav-links a:hover { color: var(--white); }
   .mobile-menu-btn {
@@ -116,7 +94,7 @@ const style = `
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--gold);
-    cursor: none;
+    cursor: pointer;
     z-index: 101;
   }
 
@@ -209,7 +187,7 @@ const style = `
     padding: 6px 14px;
     transition: all 0.3s ease;
   }
-  .tag:hover { border-color: var(--gold); color: var(--gold); cursor: none; }
+  .tag:hover { border-color: var(--gold); color: var(--gold); cursor: pointer; }
   .hero-scroll {
     margin-left: auto;
     display: flex;
@@ -329,7 +307,6 @@ const style = `
     position: relative;
     overflow: hidden;
     background: var(--surface);
-    cursor: none;
   }
   .portfolio-item:nth-child(1) { grid-column: span 7; grid-row: span 2; aspect-ratio: 4/3; }
   .portfolio-item:nth-child(2) { grid-column: span 5; aspect-ratio: 3/2; }
@@ -421,7 +398,6 @@ const style = `
     padding: 28px 0;
     border-top: 1px solid var(--border);
     transition: all 0.3s ease;
-    cursor: none;
     gap: 40px;
   }
   .service-row:last-child { border-bottom: 1px solid var(--border); }
@@ -505,9 +481,8 @@ const style = `
     border: 1px solid var(--border);
     padding: 8px 16px;
     transition: all 0.3s ease;
-    cursor: none;
   }
-  .specialty-tag:hover { color: var(--gold); border-color: var(--gold); background: var(--gold-dim); }
+  .specialty-tag:hover { color: var(--gold); border-color: var(--gold); background: var(--gold-dim); cursor: pointer; }
 
   /* CONTACT */
   .contact { background: var(--black); }
@@ -541,7 +516,6 @@ const style = `
     text-decoration: none;
     color: var(--white);
     transition: all 0.3s ease;
-    cursor: none;
     font-size: 0.82rem;
   }
   .contact-link-row:last-child { border-bottom: 1px solid var(--border); }
@@ -606,7 +580,7 @@ const style = `
     letter-spacing: 0.3em;
     text-transform: uppercase;
     padding: 18px 36px;
-    cursor: none;
+    cursor: pointer;
     transition: all 0.4s ease;
     align-self: flex-start;
   }
@@ -707,27 +681,13 @@ export default function AppWrapper() {
 }
 
 function WenasNochesPortfolio({ data }) {
-  const [cursor, setCursor] = useState({ x: -100, y: -100 });
-  const [hovering, setHovering] = useState(false);
   const [skillsVisible, setSkillsVisible] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [modalImage, setModalImage] = useState(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const skillsRef = useRef(null);
 
   useFadeIn();
-
-  useEffect(() => {
-    const move = e => setCursor({ x: e.clientX, y: e.clientY });
-    window.addEventListener('mousemove', move);
-    return () => window.removeEventListener('mousemove', move);
-  }, []);
-
-  useEffect(() => {
-    const hoverEls = document.querySelectorAll('a, button, .portfolio-item, .service-row, .tag, .specialty-tag, .contact-link-row');
-    const on = () => setHovering(true);
-    const off = () => setHovering(false);
-    hoverEls.forEach(el => { el.addEventListener('mouseenter', on); el.addEventListener('mouseleave', off); });
-    return () => hoverEls.forEach(el => { el.removeEventListener('mouseenter', on); el.removeEventListener('mouseleave', off); });
-  }, []);
 
   useEffect(() => {
     if (!skillsRef.current) return;
@@ -739,13 +699,19 @@ function WenasNochesPortfolio({ data }) {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => setShowScrollTop(window.scrollY > 400);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <>
       <style>{style}</style>
-
-      {/* Cursor */}
-      <div className={`cursor ${hovering ? 'hovering' : ''}`} style={{ left: cursor.x, top: cursor.y }} />
-      <div className={`cursor-ring ${hovering ? 'hovering' : ''}`} style={{ left: cursor.x, top: cursor.y }} />
 
       {/* Nav */}
       <nav>
@@ -838,14 +804,18 @@ function WenasNochesPortfolio({ data }) {
           {data.portfolioItems.map((item, i) => (
             <div key={item.id} className={`portfolio-item fade-in delay-${(i % 4) + 1}`}>
               {item.image ? (
-                <img src={item.image} alt={item.title} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+                <img src={item.image} alt={item.title} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%'}} />
               ) : (
                 <div className="portfolio-placeholder">
                   <div className="placeholder-icon">✦</div>
                   <div className="placeholder-label">{item.cat}</div>
                 </div>
               )}
-              <div className="portfolio-overlay">
+              <div 
+                className="portfolio-overlay" 
+                onClick={() => item.image && setModalImage(item.image)}
+                style={{ cursor: item.image ? 'pointer' : 'none' }}
+              >
                 <div className="portfolio-overlay-cat">{item.cat}</div>
                 <div className="portfolio-overlay-title">{item.title}</div>
               </div>
@@ -968,8 +938,47 @@ function WenasNochesPortfolio({ data }) {
       <footer>
         <div className="footer-logo">Wenas Noches</div>
         <div className="footer-copy">© 2026 · Fotografía Profesional</div>
-        <div className="footer-right">Montevideo, Uruguay</div>
+        <div className="footer-right">WENAS-NOCHES</div>
       </footer>
+
+      {/* Modal / Lightbox */}
+      {modalImage && (
+        <div 
+          onClick={() => setModalImage(null)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 100000,
+            background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(10px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', padding: '24px'
+          }}
+        >
+          <img 
+            src={modalImage} 
+            alt="Full size" 
+            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', border: '1px solid rgba(255,255,255,0.1)' }} 
+          />
+          <div style={{ position: 'absolute', top: '24px', right: '32px', color: 'var(--white)', fontSize: '2rem', fontFamily: 'var(--sans)', fontWeight: '300' }}>
+            &times;
+          </div>
+        </div>
+      )}
+
+      {/* Scroll to Top */}
+      <div 
+        onClick={scrollToTop}
+        style={{
+          position: 'fixed', bottom: '32px', right: '32px',
+          width: '50px', height: '50px',
+          background: 'var(--gold)', color: 'var(--black)',
+          borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: 'pointer', zIndex: 9000,
+          opacity: showScrollTop ? 1 : 0, visibility: showScrollTop ? 'visible' : 'hidden',
+          transition: 'all 0.3s ease', boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          fontSize: '1.4rem'
+        }}
+      >
+        ↑
+      </div>
     </>
   );
 }

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 
 const Gallery = () => {
   const [data, setData] = useState(null);
+  const [modalImage, setModalImage] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -31,11 +32,15 @@ const Gallery = () => {
             gap: '24px' 
           }}>
             {data.gallery.map((img, idx) => (
-              <div key={idx} style={{ position: 'relative', paddingTop: '100%', overflow: 'hidden' }}>
+              <div 
+                key={idx} 
+                onClick={() => setModalImage(img)}
+                style={{ position: 'relative', paddingTop: '100%', overflow: 'hidden', cursor: 'pointer' }}
+              >
                 <img 
                   src={img} 
                   alt={`Fotografía ${idx + 1}`} 
-                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }} 
+                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%', transition: 'transform 0.5s ease' }} 
                   onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
                   onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 />
@@ -48,6 +53,27 @@ const Gallery = () => {
           </div>
         )}
       </div>
+
+      {modalImage && (
+        <div 
+          onClick={() => setModalImage(null)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 100000,
+            background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(10px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', padding: '24px'
+          }}
+        >
+          <img 
+            src={modalImage} 
+            alt="Full size" 
+            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', border: '1px solid rgba(255,255,255,0.1)' }} 
+          />
+          <div style={{ position: 'absolute', top: '24px', right: '32px', color: '#fff', fontSize: '2rem', fontWeight: '300' }}>
+            &times;
+          </div>
+        </div>
+      )}
     </div>
   );
 };
