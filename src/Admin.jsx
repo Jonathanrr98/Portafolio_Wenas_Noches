@@ -53,11 +53,26 @@ const Admin = () => {
       setSaving(true);
       const url = await uploadImageToFirebase(file);
       if (url) {
-        const newData = { ...data };
-        newData.portfolioItems[index].image = url;
-        setData(newData);
+        const newItems = [...data.portfolioItems];
+        newItems[index] = { ...newItems[index], image: url };
+        setData({ ...data, portfolioItems: newItems });
       }
       setSaving(false);
+      e.target.value = ''; // Resetear el input para poder subir el mismo archivo de nuevo
+    }
+  };
+
+  const handleGalleryUpload = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSaving(true);
+      const url = await uploadImageToFirebase(file);
+      if (url) {
+        const newGallery = data.gallery ? [...data.gallery, url] : [url];
+        setData({ ...data, gallery: newGallery });
+      }
+      setSaving(false);
+      e.target.value = '';
     }
   };
 
@@ -96,8 +111,9 @@ const Admin = () => {
         <nav style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           {[
             { id: 'texts', label: 'Textos Generales' },
-            { id: 'portfolio', label: 'Portafolio' },
+            { id: 'portfolio', label: 'Portafolio Principal' },
             { id: 'services', label: 'Servicios' },
+            { id: 'gallery', label: 'Galería de Fotos' },
           ].map(tab => (
             <button 
               key={tab.id}
@@ -119,7 +135,7 @@ const Admin = () => {
       {/* Main Area */}
       <div style={{ flex: 1, padding: '48px', overflowY: 'auto', paddingBottom: '120px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-          <h1>{activeTab === 'texts' ? 'Textos Generales' : activeTab === 'portfolio' ? 'Gestión de Portafolio' : 'Servicios'}</h1>
+          <h1>{activeTab === 'texts' ? 'Textos Generales' : activeTab === 'portfolio' ? 'Gestión de Portafolio' : activeTab === 'gallery' ? 'Galería de Fotos' : 'Servicios'}</h1>
           <div style={{ display: 'flex', gap: '16px' }}>
             <a href="/" target="_blank" style={{ color: '#c9a96e', textDecoration: 'none', padding: '12px' }}>Ver Sitio</a>
             <button 
@@ -218,6 +234,30 @@ const Admin = () => {
                 }} style={{ padding: '12px', background: '#111', border: 'none', color: '#fff' }} />
               </div>
             ))}
+          </div>
+        )}
+
+        {activeTab === 'gallery' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div style={{ background: '#222', padding: '24px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <p style={{ color: '#aaa', margin: 0 }}>Sube más fotos de muestra para tu galería pública.</p>
+              <label style={{ padding: '12px 24px', background: '#c9a96e', color: '#000', cursor: 'pointer', fontWeight: 'bold' }}>
+                Subir Nueva Foto
+                <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleGalleryUpload} />
+              </label>
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
+              {(data.gallery || []).map((imgUrl, idx) => (
+                <div key={idx} style={{ position: 'relative' }}>
+                  <img src={imgUrl} alt={`Gallery ${idx}`} style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '4px' }} />
+                  <button onClick={() => {
+                    const newGallery = data.gallery.filter((_, i) => i !== idx);
+                    setData({...data, gallery: newGallery});
+                  }} style={{ position: 'absolute', top: 8, right: 8, background: 'red', color: 'white', border: 'none', padding: '4px 8px', cursor: 'pointer', borderRadius: '4px' }}>X</button>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

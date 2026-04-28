@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyCS-Q4EVek83cil-jJ1H-lDtm9S6UwkaHQ",
@@ -14,7 +14,7 @@ const firebaseConfig = {
 // Inicializamos Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const storage = getStorage(app);
+
 
 const defaultData = {
   texts: {
@@ -57,7 +57,8 @@ const defaultData = {
   formation: [
     { id: 1, title: "Fotografía Fine Art", sub: "Autodidacta · 2020–2022" },
     { id: 2, title: "Iluminación de Estudio", sub: "Workshop Online · 2023" },
-  ]
+  ],
+  gallery: []
 };
 
 export const getPortfolioData = async () => {
@@ -89,13 +90,25 @@ export const savePortfolioData = async (data) => {
 };
 
 export const uploadImageToFirebase = async (file) => {
+  // Modificado para usar ImgBB y evitar el cobro en Firebase Storage
   try {
-    const storageRef = ref(storage, 'portfolio/' + Date.now() + '_' + file.name);
-    await uploadBytes(storageRef, file);
-    return await getDownloadURL(storageRef);
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const response = await fetch("https://api.imgbb.com/1/upload?key=36064b2be17601025ca16fd70125c245", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      return result.data.url;
+    } else {
+      throw new Error(result.error.message);
+    }
   } catch (error) {
-    console.error("Error subiendo imagen a Firebase Storage:", error);
-    alert("Error al subir imagen. Verifica los permisos de Storage.");
+    console.error("Error subiendo imagen a ImgBB:", error);
+    alert("Error al subir imagen. Verifica tu conexión a internet.");
     return null;
   }
 };

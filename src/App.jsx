@@ -762,6 +762,7 @@ function WenasNochesPortfolio({ data }) {
           ].map(l => (
             <li key={l.id} onClick={() => setMobileMenuOpen(false)}><a href={`#${l.id}`}>{l.label}</a></li>
           ))}
+          <li onClick={() => setMobileMenuOpen(false)}><a href="/galeria" style={{ color: 'var(--gold)' }}>Galería</a></li>
         </ul>
       </nav>
 
