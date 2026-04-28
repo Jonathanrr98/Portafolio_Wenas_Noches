@@ -40,6 +40,7 @@ const Gallery = () => {
                 <img 
                   src={img} 
                   alt={`Fotografía ${idx + 1}`} 
+                  loading="lazy"
                   style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%', transition: 'transform 0.5s ease' }} 
                   onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
                   onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}

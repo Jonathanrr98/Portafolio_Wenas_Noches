@@ -804,7 +804,7 @@ function WenasNochesPortfolio({ data }) {
           {data.portfolioItems.map((item, i) => (
             <div key={item.id} className={`portfolio-item fade-in delay-${(i % 4) + 1}`}>
               {item.image ? (
-                <img src={item.image} alt={item.title} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%'}} />
+                <img src={item.image} alt={item.title} loading="lazy" style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%'}} />
               ) : (
                 <div className="portfolio-placeholder">
                   <div className="placeholder-icon">✦</div>

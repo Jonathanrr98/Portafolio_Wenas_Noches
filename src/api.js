@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+import imageCompression from 'browser-image-compression';
 
 
 const firebaseConfig = {
@@ -92,8 +93,15 @@ export const savePortfolioData = async (data) => {
 export const uploadImageToFirebase = async (file) => {
   // Modificado para usar ImgBB y evitar el cobro en Firebase Storage
   try {
+    const options = {
+      maxSizeMB: 0.8,         // Reducir la imagen a un máximo de 800KB
+      maxWidthOrHeight: 1600, // Limitar tamaño a 1600px para que cargue rapidísimo en web
+      useWebWorker: true
+    };
+    const compressedFile = await imageCompression(file, options);
+
     const formData = new FormData();
-    formData.append("image", file);
+    formData.append("image", compressedFile);
 
     const response = await fetch("https://api.imgbb.com/1/upload?key=36064b2be17601025ca16fd70125c245", {
       method: "POST",
